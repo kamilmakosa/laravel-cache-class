@@ -1,0 +1,18 @@
+<?php
+
+namespace {{ namespace }};
+
+use KamilMakosa\LaravelCacheClass\CacheClass;
+
+class {{ class }} extends CacheClass
+{
+    /**
+     * Prepare data for cache.
+     *
+     * @return mixin
+     */
+    public static function data()
+    {
+        // return
+    }
+}
