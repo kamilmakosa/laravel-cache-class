@@ -1,0 +1,34 @@
+{
+    "name": "kamilmakosa/laravel-cache-class",
+    "description": "Package for better performing about using cache",
+    "keywords": [
+        "kamilmakosa",
+        "laravel-cache-class"
+    ],
+    "homepage": "https://github.com/kamilmakosa/laravel-cache-class",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Kamil Mąkosa",
+            "email": "kammakosa@gmail.com"
+        }
+    ],
+    "require": {},
+    "require-dev": {},
+    "autoload": {
+        "psr-4":
+        {
+            "KamilMakosa\\CacheClass\\": "src"
+        }
+    },
+    "autoload-dev": {},
+    "scripts": {},
+    "extra": {
+        "laravel": {
+            "providers": [
+                "KamilMakosa\\CacheClass\\CacheClassServiceProvider"
+            ]
+        }
+    }
+}

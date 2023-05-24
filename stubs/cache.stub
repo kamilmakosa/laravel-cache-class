@@ -1,0 +1,28 @@
+<?php
+
+namespace {{ namespace }};
+
+use KamilMakosa\CacheClass\CacheClass;
+
+class {{ class }} extends CacheClass
+{
+    /**
+     * Create a new CacheClass instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        //
+    }
+
+    /**
+     * Prepare data for cache.
+     *
+     * @return mixin
+     */
+    public function data()
+    {
+        // return
+    }
+}
