@@ -7,7 +7,11 @@
     - [Source data method](#source-data-method)
     - [Cache keys](#cache-keys)
 - [Cache Class Usage](#cache-class-usage)
+    - [Obtaining A Cache Instance](#obtaining-a-cache-instance)
     - [Retrieving Items From The Cache](#retrieving-items-from-the-cache)
+    - [Storing Items In The Cache](#storing-items-in-the-cache)
+    - [Removing Items From The Cache](#removing-items-from-the-cache)
+    - [The Cache Helper](#the-cache-helper)
 
 <a name="introduction"></a>
 ## Introduction
@@ -19,9 +23,24 @@ This package provides a better developer experience when your cached data is fet
 <a name="instalation"></a>
 ## Instalation
 
-You can easily use this package in a your Laravel project:
+You can easily use this package in a local Laravel project, after cloning:
 
-1. Require the package in the local Laravel project:
+1. Specify a new repository in your composer.json file of the Laravel project:
+
+```
+// composer.json
+{
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../CacheClass"
+		}
+	]
+}
+
+```
+
+2. Require the package in the local Laravel project:
 
 ```
 composer require kamilmakosa/laravel-cache-class
@@ -107,6 +126,41 @@ By default, each cache class will automatically set the key under which data wil
 <a name="cache-class-usage"></a>
 ## Cache Class Usage
 
+<a name="obtaining-a-cache-instance"></a>
+### Obtaining A Cache Instance
+
+To obtain a cache store instance, you may use the `Cache` facade, which is what we will use throughout this documentation. The `Cache` facade provides convenient, terse access to the underlying implementations of the Laravel cache contracts:
+
+    <?php
+
+    namespace App\Http\Controllers;
+
+    use Illuminate\Support\Facades\Cache;
+
+    class UserController extends Controller
+    {
+        /**
+         * Show a list of all users of the application.
+         *
+         * @return Response
+         */
+        public function index()
+        {
+            $value = Cache::get('key');
+
+            //
+        }
+    }
+
+<a name="accessing-multiple-cache-stores"></a>
+#### Accessing Multiple Cache Stores
+
+Using the `Cache` facade, you may access various cache stores via the `store` method. The key passed to the `store` method should correspond to one of the stores listed in the `stores` configuration array in your `cache` configuration file:
+
+    $value = Cache::store('file')->get('foo');
+
+    Cache::store('redis')->put('bar', 'baz', 600); // 10 Minutes
+
 <a name="retrieving-items-from-the-cache"></a>
 ### Retrieving Items From The Cache
 
@@ -118,3 +172,182 @@ When you use the `Cache` facade's `get` method is used to retrieve items from th
     $value = FlightCache::get();
 ```
 
+You may even pass a closure as the default value. The result of the closure will be returned if the specified item does not exist in the cache. Passing a closure allows you to defer the retrieval of default values from a database or other external service:
+
+    $value = Cache::get('key', function () {
+        return DB::table(/* ... */)->get();
+    });
+
+<a name="checking-for-item-existence"></a>
+#### Checking For Item Existence
+
+The `has` method may be used to determine if an item exists in the cache. This method will also return `false` if the item exists but its value is `null`:
+
+    if (Cache::has('key')) {
+        //
+    }
+
+<a name="incrementing-decrementing-values"></a>
+#### Incrementing / Decrementing Values
+
+The `increment` and `decrement` methods may be used to adjust the value of integer items in the cache. Both of these methods accept an optional second argument indicating the amount by which to increment or decrement the item's value:
+
+    Cache::increment('key');
+    Cache::increment('key', $amount);
+    Cache::decrement('key');
+    Cache::decrement('key', $amount);
+<a name="retrieve-"></a>
+#### Retrieve & Store
+
+Sometimes you may wish to retrieve an item from the cache, but also store a default value if the requested item doesn't exist. For example, you may wish to retrieve all users from the cache or, if they don't exist, retrieve them from the database and add them to the cache. You may do this using the `Cache::remember` method:
+
+    $value = Cache::remember('users', $seconds, function () {
+        return DB::table('users')->get();
+    });
+
+If the item does not exist in the cache, the closure passed to the `remember` method will be executed and its result will be placed in the cache.
+
+You may use the `rememberForever` method to retrieve an item from the cache or store it forever if it does not exist:
+
+    $value = Cache::rememberForever('users', function () {
+        return DB::table('users')->get();
+    });
+
+<a name="retrieve-delete"></a>
+#### Retrieve & Delete
+
+If you need to retrieve an item from the cache and then delete the item, you may use the `pull` method. Like the `get` method, `null` will be returned if the item does not exist in the cache:
+
+    $value = Cache::pull('key');
+
+<a name="storing-items-in-the-cache"></a>
+### Storing Items In The Cache
+
+You may use the `put` method on the `Cache` facade to store items in the cache:
+
+    Cache::put('key', 'value', $seconds = 10);
+
+If the storage time is not passed to the `put` method, the item will be stored indefinitely:
+
+    Cache::put('key', 'value');
+
+Instead of passing the number of seconds as an integer, you may also pass a `DateTime` instance representing the desired expiration time of the cached item:
+
+    Cache::put('key', 'value', now()->addMinutes(10));
+
+<a name="store-if-not-present"></a>
+#### Store If Not Present
+
+The `add` method will only add the item to the cache if it does not already exist in the cache store. The method will return `true` if the item is actually added to the cache. Otherwise, the method will return `false`. The `add` method is an atomic operation:
+
+    Cache::add('key', 'value', $seconds);
+
+<a name="storing-items-forever"></a>
+#### Storing Items Forever
+
+The `forever` method may be used to store an item in the cache permanently. Since these items will not expire, they must be manually removed from the cache using the `forget` method:
+
+    Cache::forever('key', 'value');
+
+> **Note**  
+> If you are using the Memcached driver, items that are stored "forever" may be removed when the cache reaches its size limit.
+
+<a name="removing-items-from-the-cache"></a>
+### Removing Items From The Cache
+
+You may remove items from the cache using the `forget` method:
+
+    Cache::forget('key');
+
+You may also remove items by providing a zero or negative number of expiration seconds:
+
+    Cache::put('key', 'value', 0);
+
+    Cache::put('key', 'value', -5);
+
+You may clear the entire cache using the `flush` method:
+
+    Cache::flush();
+
+> **Warning**  
+> Flushing the cache does not respect your configured cache "prefix" and will remove all entries from the cache. Consider this carefully when clearing a cache which is shared by other applications.
+
+<a name="the-cache-helper"></a>
+### The Cache Helper
+
+In addition to using the `Cache` facade, you may also use the global `cache` function to retrieve and store data via the cache. When the `cache` function is called with a single, string argument, it will return the value of the given key:
+
+    $value = cache('key');
+
+If you provide an array of key / value pairs and an expiration time to the function, it will store values in the cache for the specified duration:
+
+    cache(['key' => 'value'], $seconds);
+
+    cache(['key' => 'value'], now()->addMinutes(10));
+
+When the `cache` function is called without any arguments, it returns an instance of the `Illuminate\Contracts\Cache\Factory` implementation, allowing you to call other caching methods:
+
+    cache()->remember('users', $seconds, function () {
+        return DB::table('users')->get();
+    });
+
+> **Note**  
+> When testing call to the global `cache` function, you may use the `Cache::shouldReceive` method just as if you were [testing the facade](/docs/{{version}}/mocking#mocking-facades).
+
+
+
+
+
+
+
+
+
+
+
+
+# Introduction
+This package is meant to provide a reference when you're following along with the documentation on [LaravelPackage.com](https://laravelpackage.com). Along the way, we'll build a demo package (called "CacheClass") by introducing the functionalities (as listed below) one-by-one. When something doesn't work as expected in your own package, you might use this repository to quickly find out if the bug is in your package or in the documentation (by running this package's test suite). 
+
+## Installation and Usage
+- Clone this repository: `git clone git@github.com:Jhnbrn90/CacheClass.git`
+- Install the dependencies: `composer install`
+- Confirm by running all tests: `composer test`
+
+Now you're free to use this demo package to your advantage. You can also include the demo package in a Laravel project if you wish, check the section below.
+
+### Using this package in a Laravel project
+You can easily use this package in a local Laravel project, after cloning:
+
+1. Specify a new repository in your composer.json file of the Laravel project (not this package!):
+```
+// composer.json
+
+{
+  "repositories": [
+    {
+      "type": "path",
+      "url": "../../CacheClass" // the relative path to your package
+    }
+  ]
+}
+```
+
+2. Require the package in the local Laravel project:
+``` 
+composer require kamilmakosa/CacheClass
+```
+
+3. Optionally publish the package assets:
+
+```
+php artisan vendor:publish --provider="KamilMakosa\CacheClass\CacheClassServiceProvider" --tag="config"
+
+php artisan vendor:publish --provider="KamilMakosa\CacheClass\CacheClassServiceProvider" --tag="migrations"
+
+php artisan vendor:publish --provider="KamilMakosa\CacheClass\CacheClassServiceProvider" --tag="views"
+
+php artisan vendor:publish --provider="KamilMakosa\CacheClass\CacheClassServiceProvider" --tag="assets"
+```
+
+## Testing
+This package includes a Unit and Feature [test suite](https://laravelpackage.com/04-testing.html) covering all mentioned components. You can easily run all tests for this package using `composer test`, or a specific test using `composer test-f test-name-here`.
