@@ -42,6 +42,12 @@ class MakeCacheClass extends GeneratorCommand
         return __DIR__.'/../../stubs/cache.stub';
     }
 
+    /**
+     * Get the default namespace for the class.
+     *
+     * @param  string  $rootNamespace
+     * @return string
+     */
     protected function getDefaultNamespace($rootNamespace)
     {
         return $rootNamespace.'\Caches';

@@ -28,7 +28,7 @@ class CacheClass
      */
     public static function getKey()
     {
-        $prefix = config('cache.laravel_cache_class.prefix') . '_';
+        $prefix = config('cache_class.prefix') . '_';
 
         return static::$key ? $prefix . static::$key : $prefix . Str::of(class_basename(static::class))->snake();
     }

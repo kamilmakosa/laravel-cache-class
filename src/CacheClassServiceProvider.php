@@ -9,7 +9,7 @@ class CacheClassServiceProvider extends ServiceProvider
 {
     public function register()
     {
-        $this->mergeConfigFrom(__DIR__.'/../config/cache.php', 'cache');
+        $this->mergeConfigFrom(__DIR__. '/../config/cache_class.php', 'cache_class');
     }
 
     public function boot()
