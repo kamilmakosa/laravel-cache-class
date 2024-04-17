@@ -1,13 +1,14 @@
-# Eloquent: Getting Started
+# Laravel Cache Class
 
 - [Introduction](#introduction)
 - [Instalation](#instalation)
-- [Generating Model Classes](#generating-cache-classes)
+- [Generating Cache Classes](#generating-cache-classes)
 - [Cache Class Conventions](#cache-class-conventions)
     - [Source data method](#source-data-method)
     - [Cache keys](#cache-keys)
 - [Cache Class Usage](#cache-class-usage)
-    - [Retrieving Items From The Cache](#retrieving-items-from-the-cache)
+    - [Retrieving Data From Cache](#retrieving-data-from-cache)
+    - [Refresh Data In Cache](#refresh-data-in-cache)
 
 <a name="introduction"></a>
 ## Introduction
@@ -107,10 +108,10 @@ By default, each cache class will automatically set the key under which data wil
 <a name="cache-class-usage"></a>
 ## Cache Class Usage
 
-<a name="retrieving-items-from-the-cache"></a>
-### Retrieving Items From The Cache
+<a name="retrieving-data-from-cache"></a>
+### Retrieving Data From Cache
 
-When you use the `Cache` facade's `get` method is used to retrieve items from the cache. If the item does not exist in the cache, `null` will be returned. If you wish, you may pass a second argument to the `get` method specifying the default value you wish to be returned if the item doesn't exist:
+Method `get` of your Cache Class is used to retrieve items from the cache.
 
 ```php
     use App\Caches\FlightCache;
@@ -118,3 +119,31 @@ When you use the `Cache` facade's `get` method is used to retrieve items from th
     $value = FlightCache::get();
 ```
 
+If the data does not exist in the cache, Cache Class auto renew data in cache, so you musn't call another method to verify is cache exists.
+
+<a name="refresh-data-in-cache"></a>
+### Refresh Data In Cache
+
+You may refresh data in your Cache Class manually:
+
+```php
+    use App\Caches\FlightCache;
+
+    $value = FlightCache::refresh();
+```
+
+Default, data in your Cache Class are stored forever. You may pass optional parameter to expiration time.
+
+```php
+    use App\Caches\FlightCache;
+
+    $seconds = 10;
+    $value = FlightCache::refresh($seconds);
+```
+
+```php
+    use App\Caches\FlightCache;
+
+    $seconds = 3600;
+    $value = FlightCache::refresh($seconds);
+```
