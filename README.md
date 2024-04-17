@@ -144,6 +144,6 @@ Default, data in your Cache Class are stored forever. You may pass optional para
 ```php
     use App\Caches\FlightCache;
 
-    $seconds = 3600;
-    $value = FlightCache::refresh($seconds);
+    $ttl = now()->addMinutes(10);
+    $value = FlightCache::refresh($ttl);
 ```
