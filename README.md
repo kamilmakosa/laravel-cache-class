@@ -1,7 +1,6 @@
 # Laravel Cache Class
 
 - [Introduction](#introduction)
-- [Instalation](#instalation)
 - [Generating Cache Classes](#generating-cache-classes)
 - [Cache Class Conventions](#cache-class-conventions)
     - [Source data method](#source-data-method)
@@ -16,17 +15,6 @@
 > Laravel provides an expressive, unified API for various cache backends, allowing you to take advantage of their blazing fast data retrieval and speed up your web application.
 
 This package provides a better developer experience when your cached data is fetched or generated in different places in your code.
-
-<a name="instalation"></a>
-## Instalation
-
-You can easily use this package in a your Laravel project:
-
-1. Require the package in the local Laravel project:
-
-```
-composer require kamilmakosa/laravel-cache-class
-```
 
 <a name="generating-cache-classes"></a>
 ## Generating Cache Classes
